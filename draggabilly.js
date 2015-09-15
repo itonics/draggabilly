@@ -167,6 +167,8 @@ Draggabilly.prototype._create = function() {
 
   this.startPoint = { x: 0, y: 0 };
   this.dragPoint = { x: 0, y: 0 };
+  this.pointerOffset = { x: 0, y: 0};
+  this.dragPosOffset = { x: (this.options.positionOffsetX)?(this.options.positionOffsetX):0, y: (this.options.positionOffsetY)?(this.options.positionOffsetY):0};
 
   this.startPosition = extend( {}, this.position );
 
@@ -253,6 +255,33 @@ Draggabilly.prototype._addTransformPosition = function( style ) {
   this.position.y += translateY;
 };
 
+
+Draggabilly.prototype.getOffset = function(element){
+  var documentElem,
+    box = {
+      top: 0,
+      left: 0
+    },
+    doc = element && element.ownerDocument;
+  documentElem = doc.documentElement;
+
+  if (typeof element.getBoundingClientRect !== undefined) {
+    box = element.getBoundingClientRect();
+  }
+
+  return {
+    y: box.top + (window.pageYOffset || documentElem.scrollTop) - (documentElem.clientTop || 0),
+    x: box.left + (window.pageXOffset || documentElem.scrollLeft) - (documentElem.clientLeft || 0)
+  };
+};
+
+Draggabilly.prototype.getScrollPosition = function(){
+  return {
+    top: (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop,
+    left: (window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft
+  }
+};
+
 // -------------------------- events -------------------------- //
 
 /**
@@ -293,11 +322,20 @@ Draggabilly.prototype.dragStart = function( event, pointer ) {
   if ( !this.isEnabled ) {
     return;
   }
+
+  var elemOffset = this.getOffset( this.element );
+  var pageScroll = this.getScrollPosition();
+
+  if(this.options.snapToPointer){
+    this.pointerOffset.x = event.pageX - elemOffset.x;
+    this.pointerOffset.y = event.pageY - elemOffset.y;
+  }
+
   this._getPosition();
   this.measureContainment();
   // position _when_ drag began
-  this.startPosition.x = this.position.x;
-  this.startPosition.y = this.position.y;
+  this.startPosition.x = this.position.x + this.pointerOffset.x + this.dragPosOffset.x;
+  this.startPosition.y = this.position.y + this.pointerOffset.y + this.dragPosOffset.y;
   // reset left/top style
   this.setLeftTop();
 
@@ -348,8 +386,8 @@ Draggabilly.prototype.dragMove = function( event, pointer, moveVector ) {
   if ( !this.isEnabled ) {
     return;
   }
-  var dragX = moveVector.x;
-  var dragY = moveVector.y;
+  var dragX = moveVector.x + this.pointerOffset.x + this.dragPosOffset.x;
+  var dragY = moveVector.y + this.pointerOffset.y + this.dragPosOffset.y;
 
   var grid = this.options.grid;
   var gridX = grid && grid[0];
