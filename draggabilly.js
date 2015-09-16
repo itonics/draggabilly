@@ -386,8 +386,8 @@ Draggabilly.prototype.dragMove = function( event, pointer, moveVector ) {
   if ( !this.isEnabled ) {
     return;
   }
-  var dragX = moveVector.x + this.pointerOffset.x + this.dragPosOffset.x;
-  var dragY = moveVector.y + this.pointerOffset.y + this.dragPosOffset.y;
+  var dragX = moveVector.x;
+  var dragY = moveVector.y;
 
   var grid = this.options.grid;
   var gridX = grid && grid[0];
@@ -406,8 +406,8 @@ Draggabilly.prototype.dragMove = function( event, pointer, moveVector ) {
   this.position.x = this.startPosition.x + dragX;
   this.position.y = this.startPosition.y + dragY;
   // set dragPoint properties
-  this.dragPoint.x = dragX;
-  this.dragPoint.y = dragY;
+  this.dragPoint.x = dragX + this.pointerOffset.x + this.dragPosOffset.x;
+  this.dragPoint.y = dragY + this.pointerOffset.y + this.dragPosOffset.y;
 
   this.dispatchEvent( 'dragMove', event, [ pointer, moveVector ] );
 };
