@@ -142,6 +142,7 @@ function Draggabilly( element, options ) {
   this.options = extend( {}, this.constructor.defaults );
   this.option( options );
 
+  // drag clone element instead of the main element
   if(this.options.cloneElementDrag){
     this.cloneElement = typeof this.options.cloneElement === 'string' ? document.querySelector( this.options.cloneElement ) : this.options.cloneElement;
   }
@@ -173,6 +174,12 @@ Draggabilly.prototype._create = function() {
   this.dragPoint = { x: 0, y: 0 };
   this.pointerOffset = { x: 0, y: 0};
   this.dragPosOffset = { x: (this.options.positionOffsetX)?(this.options.positionOffsetX):0, y: (this.options.positionOffsetY)?(this.options.positionOffsetY):0};
+  this.containmentOffset = {
+    left: (this.options.containmentOffset.left)?(this.options.containmentOffset.left):0,
+    right: (this.options.containmentOffset.right)?(this.options.containmentOffset.right):0,
+    top: (this.options.containmentOffset.top)?(this.options.containmentOffset.top):0,
+    bottom: (this.options.containmentOffset.bottom)?(this.options.containmentOffset.bottom):0
+  };
 
   this.startPosition = extend( {}, this.position );
 
@@ -338,8 +345,8 @@ Draggabilly.prototype.dragStart = function( event, pointer ) {
   this._getPosition();
   this.measureContainment();
   // position _when_ drag began
-  this.startPosition.x = this.position.x + this.pointerOffset.x + this.dragPosOffset.x;
-  this.startPosition.y = this.position.y + this.pointerOffset.y + this.dragPosOffset.y;
+  this.startPosition.x = this.position.x;
+  this.startPosition.y = this.position.y;
   // reset left/top style
   this.setLeftTop();
 
@@ -390,8 +397,8 @@ Draggabilly.prototype.dragMove = function( event, pointer, moveVector ) {
   if ( !this.isEnabled ) {
     return;
   }
-  var dragX = moveVector.x;
-  var dragY = moveVector.y;
+  var dragX = moveVector.x + this.pointerOffset.x + this.dragPosOffset.x;
+  var dragY = moveVector.y + this.pointerOffset.y + this.dragPosOffset.y;
 
   var grid = this.options.grid;
   var gridX = grid && grid[0];
@@ -410,8 +417,8 @@ Draggabilly.prototype.dragMove = function( event, pointer, moveVector ) {
   this.position.x = this.startPosition.x + dragX;
   this.position.y = this.startPosition.y + dragY;
   // set dragPoint properties
-  this.dragPoint.x = dragX + this.pointerOffset.x + this.dragPosOffset.x;
-  this.dragPoint.y = dragY + this.pointerOffset.y + this.dragPosOffset.y;
+  this.dragPoint.x = dragX;
+  this.dragPoint.y = dragY;
 
   this.dispatchEvent( 'dragMove', event, [ pointer, moveVector ] );
 };
@@ -426,10 +433,12 @@ Draggabilly.prototype.containDrag = function( axis, drag, grid ) {
     return drag;
   }
   var measure = axis == 'x' ? 'width' : 'height';
+  var minOffsetPos = axis == 'x' ? 'left' : 'top';
+  var maxOffsetPos = axis == 'x' ? 'right' : 'bottom';
 
-  var rel = this.relativeStartPosition[ axis ];
+  var rel = this.relativeStartPosition[ axis ] - this.containmentOffset[ minOffsetPos ];
   var min = applyGrid( -rel, grid, 'ceil' );
-  var max = this.containerSize[ measure ] - rel - this.size[ measure ];
+  var max = this.containerSize[ measure ] - rel - this.size[ measure ] - this.containmentOffset[ maxOffsetPos ];
   max = applyGrid( max, grid, 'floor' );
   return  Math.min( max, Math.max( min, drag ) );
 };
