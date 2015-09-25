@@ -368,6 +368,7 @@ Draggabilly.prototype.measureContainment = function() {
   }
 
   this.size = getSize( this.element );
+  this.cloneSize = getSize( this.cloneElement );
   var elemRect = this.element.getBoundingClientRect();
 
   // use element if element
@@ -407,6 +408,8 @@ Draggabilly.prototype.dragMove = function( event, pointer, moveVector ) {
   dragX = applyGrid( dragX, gridX );
   dragY = applyGrid( dragY, gridY );
 
+  this.measureContainment();
+
   dragX = this.containDrag( 'x', dragX, gridX );
   dragY = this.containDrag( 'y', dragY, gridY );
 
@@ -436,9 +439,11 @@ Draggabilly.prototype.containDrag = function( axis, drag, grid ) {
   var minOffsetPos = axis == 'x' ? 'left' : 'top';
   var maxOffsetPos = axis == 'x' ? 'right' : 'bottom';
 
+  var size = (this.options.cloneElementDrag) ? this.cloneSize : this.size;
+
   var rel = this.relativeStartPosition[ axis ] - this.containmentOffset[ minOffsetPos ];
   var min = applyGrid( -rel, grid, 'ceil' );
-  var max = this.containerSize[ measure ] - rel - this.size[ measure ] - this.containmentOffset[ maxOffsetPos ];
+  var max = this.containerSize[ measure ] - rel - size[ measure ] - this.containmentOffset[ maxOffsetPos ];
   max = applyGrid( max, grid, 'floor' );
   return  Math.min( max, Math.max( min, drag ) );
 };
