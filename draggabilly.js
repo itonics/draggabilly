@@ -174,11 +174,12 @@ Draggabilly.prototype._create = function() {
   this.dragPoint = { x: 0, y: 0 };
   this.pointerOffset = { x: 0, y: 0};
   this.dragPosOffset = { x: (this.options.positionOffsetX)?(this.options.positionOffsetX):0, y: (this.options.positionOffsetY)?(this.options.positionOffsetY):0};
+
   this.containmentOffset = {
-    left: (this.options.containmentOffset.left)?(this.options.containmentOffset.left):0,
-    right: (this.options.containmentOffset.right)?(this.options.containmentOffset.right):0,
-    top: (this.options.containmentOffset.top)?(this.options.containmentOffset.top):0,
-    bottom: (this.options.containmentOffset.bottom)?(this.options.containmentOffset.bottom):0
+    left:   (typeof this.options.containmentOffset !== 'undefined' && this.options.containmentOffset.left) ? (this.options.containmentOffset.left) : 0,
+    right:  (typeof this.options.containmentOffset !== 'undefined' && this.options.containmentOffset.right) ? (this.options.containmentOffset.right) : 0,
+    top:    (typeof this.options.containmentOffset !== 'undefined' && this.options.containmentOffset.top) ? (this.options.containmentOffset.top) : 0,
+    bottom: (typeof this.options.containmentOffset !== 'undefined' && this.options.containmentOffset.bottom) ? (this.options.containmentOffset.bottom) : 0
   };
 
   this.startPosition = extend( {}, this.position );
