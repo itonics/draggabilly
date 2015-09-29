@@ -334,6 +334,7 @@ Draggabilly.prototype.dragStart = function( event, pointer ) {
     return;
   }
 
+  var plugin = this;
   var elemOffset = this.getOffset( this.element );
   var pageScroll = this.getScrollPosition();
 
@@ -344,6 +345,15 @@ Draggabilly.prototype.dragStart = function( event, pointer ) {
 
   this._getPosition();
   this.measureContainment();
+
+  setTimeout(function(){
+    plugin.measureContainment();
+  },100);
+
+  setTimeout(function(){
+    plugin.measureContainment();
+  },600);
+
   // position _when_ drag began
   this.startPosition.x = this.position.x;
   this.startPosition.y = this.position.y;
@@ -408,7 +418,7 @@ Draggabilly.prototype.dragMove = function( event, pointer, moveVector ) {
   dragX = applyGrid( dragX, gridX );
   dragY = applyGrid( dragY, gridY );
 
-  this.measureContainment();
+  //this.measureContainment();
 
   dragX = this.containDrag( 'x', dragX, gridX );
   dragY = this.containDrag( 'y', dragY, gridY );
